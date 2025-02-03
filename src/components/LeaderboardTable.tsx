@@ -71,6 +71,9 @@ export function LeaderboardTable({
     fetchData();
   }, [players]);
 
+  // Sort players by level in descending order before rendering
+  const sortedPlayers = [...players].sort((a, b) => b.level - a.level);
+
   return (
     <div className="border border-green-500 bg-black">
       {/* Table Header */}
@@ -84,7 +87,7 @@ export function LeaderboardTable({
       </div>
 
       {/* Table Rows - One for each player */}
-      {players.map((player, index) => (
+      {sortedPlayers.map((player, index) => (
         <div
           key={player.id}
           className="grid grid-cols-6 gap-4 p-4 border-b border-green-900 font-mono text-green-500 hover:bg-green-900/10"
