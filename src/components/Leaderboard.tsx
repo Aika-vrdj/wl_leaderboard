@@ -66,6 +66,24 @@ export default function Leaderboard() {
     <div className="container mx-auto px-4">
       {/* Pass the players data to LeaderboardTable */}
       <LeaderboardTable players={players} />
+      
+      {/* Medal Explanations */}
+      <div className="text-green-500 font-mono mt-8">
+        <h2 className="font-bold">Medals Explained:</h2>
+        <ul className="list-disc pl-5">
+          <li><strong>Hungry Hippo</strong>: Earned for collecting all food items.</li>
+          <li><strong>Over-prepared</strong>: Earned for collecting all gear items.</li>
+          <li><strong>Junk Collector</strong>: Earned for collecting all useless items.</li>
+          <li><strong>Prize Hunter</strong>: Earned for collecting all prizes.</li>
+          <li><strong>Thrifty Looter</strong>: Earned for collecting all common items.</li>
+          <li><strong>Picky Looter</strong>: Earned for collecting all uncommon items.</li>
+          <li><strong>Cultured Looter</strong>: Earned for collecting all rare items.</li>
+          <li><strong>Legend Hunter</strong>: Earned for collecting all legendary items.</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
     </div>
   );
 }
