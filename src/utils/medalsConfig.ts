@@ -30,7 +30,7 @@ export const medalsConfig = [
     description: "Earned for collecting all common items."
   },
   {
-    name: "Picky Looter"
+    name: "Picky Looter",
     type: "rarity",
     value: "uncommon",
     description: "Earned for collecting all uncommon items."
