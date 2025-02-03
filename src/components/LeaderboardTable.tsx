@@ -77,7 +77,7 @@ export function LeaderboardTable({
                 key={medalName}
                 src={medalImages[medalName] || '/icons/default-icon.png'} // Fallback icon
                 alt={medalName}
-                className="w-6 h-6" // Size of the medal icon
+                className="w-8 h-8" // Set size to 32px (Tailwind 'w-8' and 'h-8' are 32px)
               />
             ))}
           </div>
