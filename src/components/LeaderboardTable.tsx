@@ -100,23 +100,24 @@ export function LeaderboardTable({
 
           {/* Display Medals below the player's name */}
           <div className="flex gap-2">
-            {medals[player.id]?.map((medalName) => {
-              // Find the corresponding medal from the config
-              const medal = medalsConfig.find((m) => m.name === medalName);
-              return (
-                medal && (
-                  <img
-                    key={medalName}
-                    src={medal.image} // Use the image from the medal config
-                    alt={medalName}
-                    className="w-8 h-8" // Set size to 32px (Tailwind 'w-8' and 'h-8' are 32px)
-                  />
-                )
-              );
-            })}
-          </div>
+           {medals[player.id]?.map((medalName) => {
+  // Find the corresponding medal from the config
+  const medal = medalsConfig.find((m) => m.name === medalName);
+  return (
+    medal && (
+      <div className="relative group" key={medalName}>
+        {/* Medal Image */}
+        <img
+          src={medal.image} // Use the image from the medal config
+          alt={medal.name} // Correct use of 'medal.name' to get the name
+          className="w-8 h-8"
+        />
+        
+        {/* Custom Tooltip */}
+        <div className="absolute opacity-0 group-hover:opacity-100 bg-gray-800 text-white text-xs rounded px-2 py-1 transition-opacity duration-200 bottom-10 left-1/2 transform -translate-x-1/2">
+          {medal.name}
         </div>
-      ))}
-    </div>
+      </div>
+    )
   );
-}
+})}
