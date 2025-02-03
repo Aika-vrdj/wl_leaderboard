@@ -1,49 +1,74 @@
 import { useEffect, useState } from 'react';
-import type { Player } from '../types';
-import type { SortCategory } from '../types/leaderboard';
-import { getRebelName } from '../utils/rebelNames';
 import { supabase } from '../lib/supabase';
+import { medalsConfig } from '../utils/medalsConfig'; // Import the medals config
+import type { Player } from '../types';
+import { getRebelName } from '../utils/rebelNames';
 
-// Dummy medal images for now (these can be replaced with real medal images later)
-const medalImages: { [key: string]: string } = {
-  'Picky Eater': '/icons/picky-eater-icon.png',
-  'Picky Collector': '/icons/picky-collector-icon.png',
-  'Gear Head': '/icons/gear-head-icon.png',
-  'Legendary Collector': '/icons/legendary-collector-icon.png',
-};
-
-// This component displays the actual leaderboard table with player rankings
 export function LeaderboardTable({
   players,
   category,
 }: {
   players: Player[];
-  category: SortCategory;
+  category: string;
 }) {
   const [medals, setMedals] = useState<{ [key: string]: string[] }>({});
+  const [inventoryData, setInventoryData] = useState<any[]>([]);
+  const [collectiblesData, setCollectiblesData] = useState<any[]>([]);
 
   useEffect(() => {
-    // Fetch medals for each player
-    const fetchMedals = async () => {
-      const { data, error } = await supabase
-        .from('player_medals')
-        .select('player_id, medal_type');
+    const fetchData = async () => {
+      try {
+        // Fetch player inventory
+        const { data: inventory, error: inventoryError } = await supabase
+          .from('player_inventory')
+          .select('player_id, collectible_id, quantity');
 
-      if (error) {
-        console.error('Error fetching player medals:', error);
+        if (inventoryError) throw inventoryError;
+
+        // Fetch collectibles data
+        const { data: collectibles, error: collectiblesError } = await supabase
+          .from('collectibles')
+          .select('id, rarity, type');
+
+        if (collectiblesError) throw collectiblesError;
+
+        setInventoryData(inventory);
+        setCollectiblesData(collectibles);
+
+        const playerMedals: { [key: string]: string[] } = {};
+
+        players.forEach((player) => {
+          const playerItems = inventory.filter(
+            (item) => item.player_id === player.id
+          );
+
+          // Check for each medal in the config
+          medalsConfig.forEach((medal) => {
+            const collectiblesToCheck = collectibles.filter(
+              (item) => item[medal.type] === medal.value
+            );
+            const hasMedal = collectiblesToCheck.every((item) => {
+              const playerItem = playerItems.find(
+                (inventoryItem) => inventoryItem.collectible_id === item.id
+              );
+              return playerItem && playerItem.quantity > 0;
+            });
+
+            if (hasMedal) {
+              if (!playerMedals[player.id]) playerMedals[player.id] = [];
+              playerMedals[player.id].push(medal.name);
+            }
+          });
+        });
+
+        setMedals(playerMedals);
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
-
-      // Group medals by player_id
-      const medalMap = data?.reduce((map, item) => {
-        map[item.player_id] = map[item.player_id] || [];
-        map[item.player_id].push(item.medal_type);
-        return map;
-      }, {} as { [key: string]: string[] });
-
-      setMedals(medalMap || {});
     };
 
-    fetchMedals();
+    fetchData();
   }, [players]);
 
   return (
@@ -72,14 +97,20 @@ export function LeaderboardTable({
 
           {/* Display Medals below the player's name */}
           <div className="flex gap-2">
-            {medals[player.id]?.map((medalName) => (
-              <img
-                key={medalName}
-                src={medalImages[medalName] || '/icons/default-icon.png'} // Fallback icon
-                alt={medalName}
-                className="w-8 h-8" // Set size to 32px (Tailwind 'w-8' and 'h-8' are 32px)
-              />
-            ))}
+            {medals[player.id]?.map((medalName) => {
+              // Find the corresponding medal from the config
+              const medal = medalsConfig.find((m) => m.name === medalName);
+              return (
+                medal && (
+                  <img
+                    key={medalName}
+                    src={medal.image} // Use the image from the medal config
+                    alt={medalName}
+                    className="w-8 h-8" // Set size to 32px (Tailwind 'w-8' and 'h-8' are 32px)
+                  />
+                )
+              );
+            })}
           </div>
         </div>
       ))}
